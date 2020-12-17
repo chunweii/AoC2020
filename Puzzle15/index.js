@@ -1,40 +1,32 @@
 const timeNow = Date.now();
 const input = [2, 15, 0, 9, 1, 20];
-let turn = input.length + 1;
-let prev = input[input.length - 1];
-const mem = new Map();
-input.forEach((x, i) => {
-    mem.set(x, [i + 1]);
-});
-function cutArray(arr) {
-    if (arr.length <= 2) {
-    } else {
-        arr.shift();
-    }
-    return arr;
-}
-while (turn <= 30000000) {
-    const prevArr = mem.get(prev);
-    if (prevArr.length === 1) {
-        const theArr = mem.get(0);
-        if (theArr === undefined) {
-            mem.set(0, [turn++]);
-        } else {
-            theArr.push(turn++);
-            cutArray(theArr);
+function solve(input) {
+    return turns => {
+        let turn = input.length + 1;
+        let prev = input[input.length - 1];
+        let prevTurn = 0;
+        const mem = new Map();
+        input.forEach((x, i) => {
+            mem.set(x, i + 1);
+        });
+        while (turn <= turns) {
+            if (prevTurn === 0) {
+                prevTurn = mem.get(0);
+                mem.set(0, turn++);
+                prev = 0;
+            } else {
+                const newNumber = turn - 1 - prevTurn;
+                prevTurn = mem.get(newNumber) || 0;
+                mem.set(newNumber, turn++);
+                prev = newNumber;
+            }
         }
-        prev = 0;
-    } else {
-        const diff = prevArr[1] - prevArr[0];
-        const theArr = mem.get(diff);
-        if (theArr === undefined) {
-            mem.set(diff, [turn++]);
-        } else {
-            theArr.push(turn++);
-            cutArray(theArr);
-        }
-        prev = diff;
-    }
+        return prev;
+    };
 }
-console.log(prev, turn);
+
+const solver = solve(input);
+console.log(
+`Part 1 is ${solver(2020)}
+Part 2 is ${solver(30000000)}`);
 console.log(Date.now() - timeNow);
